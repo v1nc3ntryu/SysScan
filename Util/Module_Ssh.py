@@ -1,12 +1,13 @@
 import paramiko
 import time
+from Util import Static
 
 class ModuleSsh:
-    def __init__(self, host, port, username, password):
-        self.host = host
-        self.port = port
-        self.username = username
-        self.password = password
+    def __init__(self):
+        self.host = Static.HOST
+        self.port = Static.PORT
+        self.username = Static.USERNAME
+        self.password = Static.PASSWORD
         self.client = paramiko.SSHClient()
         self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
