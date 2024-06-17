@@ -14,15 +14,15 @@ class ModuleSsh:
     def connect(self):
         try:
             self.client.connect(self.host, port=self.port, username=self.username, password=self.password)
-            print(f"[+] Connected to {self.host} via SSH")
+            print(f"[+] Connected to {self.host} via SSH\n")
         except Exception as e:
-            print(f"[-] Failed to connect to {self.host}: {e}")
+            print(f"[-] Failed to connect to {self.host}: {e}\n")
             return False
         return True
 
     def execute_command(self, command):
         if not self.client:
-            print("[-] SSH client is not connected.")
+            print("\n[-] SSH client is not connected.")
             return None
         
         try:
@@ -35,9 +35,9 @@ class ModuleSsh:
             else:
                 return output
         except Exception as e:
-            print(f"[-] Unexpected Error")
+            print(f"\n[-] Unexpected Error")
 
     def close(self):
         if self.client:
             self.client.close()
-            print(f"[+] Connection to {self.host} closed.")
+            print(f"\n[+] Connection to {self.host} closed.")

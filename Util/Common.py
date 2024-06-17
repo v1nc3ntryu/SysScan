@@ -18,6 +18,19 @@ def gather_result_multi(str_result, class_name, method_name, raw_result):
     return str_result
 
 def write_json(raw_json):
-    current_dir = os.getcwd() + '/Result'
-    with open(current_dir, 'w') as json_file:
-            json_file.write(json.dumps(raw_json, indent=4))
+    current_dir = os.path.join(os.getcwd(), 'Result')
+
+    if not os.path.exists(current_dir):
+        os.makedirs(current_dir)  # 'Result' 디렉토리가 없으면 생성
+        
+    with open(current_dir + '/raw.json', 'w') as file:
+            file.write(json.dumps(raw_json, indent=4))
+
+def write_str(raw_str):
+    current_dir = os.path.join(os.getcwd(), 'Result')
+
+    if not os.path.exists(current_dir):
+        os.makedirs(current_dir)  # 'Result' 디렉토리가 없으면 생성
+        
+    with open(current_dir + '/raw.txt', 'w') as file:
+            file.write(raw_str)

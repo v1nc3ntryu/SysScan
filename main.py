@@ -11,8 +11,7 @@ def init_scan(ssh_client):
     str_result += scan_system.str_result
 
     write_json(json_result)
-    # print(str_result)
-
+    write_str(str_result)
     
 
 # 예제 사용

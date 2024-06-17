@@ -4,6 +4,7 @@ class ScanSystem:
     def __init__(self, ssh_client):
         self.ssh_client = ssh_client
         self.class_name = type(self).__name__
+        print(f'[{self.class_name}]')
         self.json_result = {}
         self.str_result = ''
 
@@ -18,6 +19,7 @@ class ScanSystem:
 
     def info_os(self):
         method_name = inspect.currentframe().f_code.co_name
+        print(f'[*] {method_name}...')
         command = 'cat /etc/os-release'
         raw_result = self.ssh_client.execute_command(command)
         lines = raw_result.split('\n')
@@ -31,6 +33,7 @@ class ScanSystem:
 
     def info_service(self):
         method_name = inspect.currentframe().f_code.co_name
+        print(f'[*] {method_name}...')
         command = 'service --status-all'
         raw_result = self.ssh_client.execute_command(command)
         lines = raw_result.split('\n')
@@ -73,6 +76,7 @@ class ScanSystem:
 
     def info_system_file(self):
         method_name = inspect.currentframe().f_code.co_name
+        print(f'[*] {method_name}...')
         commands = [
             'cat /etc/passwd',
             'cat /etc/shadow'
@@ -90,6 +94,7 @@ class ScanSystem:
 
     def info_env(self):
         method_name = inspect.currentframe().f_code.co_name
+        print(f'[*] {method_name}...')
         command = 'printenv'
         raw_result = self.ssh_client.execute_command(command)
         lines = raw_result.split('\n')
@@ -106,6 +111,7 @@ class ScanSystem:
 
     def info_cron(self):
         method_name = inspect.currentframe().f_code.co_name
+        print(f'[*] {method_name}...')
         command = 'crontab -l'
         raw_result = self.ssh_client.execute_command(command)
         lines = raw_result.split('\n')
