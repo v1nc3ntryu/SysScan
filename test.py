@@ -1,13 +1,17 @@
-import json, os
+import json
 
-def write_json(raw_json):
-    current_dir = os.path.join(os.getcwd(), 'Result')
+def convert_tree_json(tree_json):
+    def process_node(node):
+        if node["type"] == "directory":
+            contents = []
+            for item in node.get("contents", []):
+                contents.append(process_node(item))
+            return {node["name"]: contents}
+        elif node["type"] == "file":
+            return node["name"]
 
-    if not os.path.exists(current_dir):
-        os.makedirs(current_dir)  # 'Result' 디렉토리가 없으면 생성
-        
-    with open(current_dir + '/test.json', 'w') as json_file:
-            json_file.write(json.dumps(raw_json, indent=4))
-
-
-write_json({})
+    result = []
+    for item in tree_json:
+        result.append(process_node(item))
+    
+    return result

@@ -1,19 +1,20 @@
 from Util.Common import *
 
 class ScanSystem:
-    def __init__(self, ssh_client):
+    def __init__(self, ssh_client, os_type):
         self.ssh_client = ssh_client
         self.class_name = type(self).__name__
-        print(f'[{self.class_name}]')
+        print(f'\n[{self.class_name}]')
         self.json_result = {}
         self.str_result = ''
+        self.os_type = os_type
 
         self.info_os()
         self.info_service()
         self.info_system_file()
         self.info_env()
         self.info_cron()
-
+        self.info_directory()
         self.json_result = {'scan_system' : self.json_result}
 
 
@@ -27,8 +28,8 @@ class ScanSystem:
             if line.startswith('PRETTY_NAME'):
                 result = line.strip().split('=')[-1].strip('"')
                 
-        gather_results = [self.json_result, self.str_result, result, self.class_name, method_name, command, raw_result]
-        self.str_result = gather_result(*gather_results)
+        gather_result_json(self.json_result, method_name, result)
+        self.str_result = gather_result(self.str_result, self.class_name, method_name, command, raw_result)
 
 
     def info_service(self):
@@ -70,8 +71,8 @@ class ScanSystem:
                     break
             result.append(service)
                 
-        gather_results = [self.json_result, self.str_result, result, self.class_name, method_name, command, raw_result]
-        self.str_result = gather_result(*gather_results)
+        gather_result_json(self.json_result, method_name, result)
+        self.str_result = gather_result(self.str_result, self.class_name, method_name, command, raw_result)
 
 
     def info_system_file(self):
@@ -87,9 +88,9 @@ class ScanSystem:
             raw_result += f'\nCommand : {command}'
             raw_result += f'\nRaw Result :\n'
             raw_result += f'\n{raw_result_temp}'
-
-        gather_results = [self.str_result, self.class_name, method_name, raw_result]
-        self.str_result = gather_result_multi(*gather_results)
+                
+        gather_result_json(self.json_result, method_name, 'Check txt Result')
+        self.str_result = gather_result_multi(self.str_result, self.class_name, method_name, raw_result)
 
 
     def info_env(self):
@@ -105,8 +106,8 @@ class ScanSystem:
                 continue
             result.append({temp_result[0] : temp_result[1]})
                 
-        gather_results = [self.json_result, self.str_result, result, self.class_name, method_name, command, raw_result]
-        self.str_result = gather_result(*gather_results)
+        gather_result_json(self.json_result, method_name, result)
+        self.str_result = gather_result(self.str_result, self.class_name, method_name, command, raw_result)
 
 
     def info_cron(self):
@@ -124,11 +125,25 @@ class ScanSystem:
         else:
             result.append('no crontab')
                 
-        gather_results = [self.json_result, self.str_result, result, self.class_name, method_name, command, raw_result]
-        self.str_result = gather_result(*gather_results)
+        gather_result_json(self.json_result, method_name, result)
+        self.str_result = gather_result(self.str_result, self.class_name, method_name, command, raw_result)
 
 
     def info_directory(self):
-        pass
+        method_name = inspect.currentframe().f_code.co_name
+        print(f'[*] {method_name}...')
+        raw_result = 'Check json Result'
+        result = []
+        if self.os_type == 'L':
+            command = 'tree -J -a /'
+
+            raw_result_temp = self.ssh_client.execute_command(command)
+            result = parse_tree_linux(raw_result_temp)
+
+        elif self.os_type == 'W':
+            pass
+                
+        gather_result_json(self.json_result, method_name, result)
+        self.str_result = gather_result(self.str_result, self.class_name, method_name, command, raw_result)
 
     

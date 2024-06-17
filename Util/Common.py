@@ -1,7 +1,9 @@
 import inspect, json, os
 
-def gather_result(json_result, str_result, result, class_name, method_name, command, raw_result):
+def gather_result_json(json_result, method_name, result):
     json_result.update({method_name : result})
+
+def gather_result(str_result, class_name, method_name, command, raw_result):
     str_result += f'\n--------------------------------------'
     str_result += f'\nClass Name : {class_name}'
     str_result += f'\nMethod Name : {method_name}'
@@ -34,3 +36,34 @@ def write_str(raw_str):
         
     with open(current_dir + '/raw.txt', 'w') as file:
             file.write(raw_str)
+
+def parse_tree_linux(tree_text):
+    tree_text = json.loads(tree_text)
+    if len(tree_text) < 2:
+        return {}
+    
+    def process_node(node):
+        if node["type"] == "directory":
+            contents = []
+            for item in node.get("contents", []):
+                processed_item = process_node(item)
+                if processed_item:  # None이 아닌 경우만 추가
+                    contents.append(process_node(item))
+            return {node["name"]: contents}
+        elif node["type"] == "file":
+            return node["name"] if node["name"] is not None else None
+
+    result = []
+    for item in tree_text:
+        processed_item = process_node(item)
+        if processed_item:  # None이 아닌 경우만 추가
+            result.append(process_node(item))
+
+    if len(result) > 0:
+        if '/' in result[0]:
+            result = result[0]['/']
+
+    return result
+
+        
+
