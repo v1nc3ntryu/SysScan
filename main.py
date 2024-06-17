@@ -1,17 +1,30 @@
-from Util import Module_Ssh
+from Util.Module_Ssh import *
+from Scan.ScanSystem import *
+
+def init_scan(ssh_client):
+    json_result = {}
+    str_result = ''
+
+    scan_system = ScanSystem(ssh_client)
+
+    json_result.update(scan_system.json_result)
+    str_result += scan_system.str_result
+
+    write_json(json_result)
+    # print(str_result)
+
+    
 
 # 예제 사용
 if __name__ == "__main__":
     # SSH 클라이언트 인스턴스 생성
-    ssh_client = Module_Ssh.ModuleSsh()
+    ssh_client = ModuleSsh()
 
     # SSH 연결
-    if ssh_client.connect() == False:
-        pass
+    if ssh_client.connect() == True:
+        init_scan(ssh_client)
     
-    command = 'ls -l /'  # 예시 명령어
-    ssh_client.execute_command(command)
-
-
+    else:
+        print('SSH Connect Failed')
 
     ssh_client.close()
