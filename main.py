@@ -1,21 +1,28 @@
 from Util.Module_Ssh import *
-from Scan.ScanSystem import *
 from Scan.CheckOs import *
+from Scan.ScanSystem import *
+from Scan.ScanNetwork import *
 
 def init_scan(ssh_client):
     json_result = {}
     str_result = ''
 
-    os_type = CheckOs(ssh_client).os_type
-    str_result += get_result(ScanSystem(ssh_client, os_type), json_result, str_result)
+    checkOs = CheckOs(ssh_client)
 
-    write_json(json_result)
-    write_str(str_result)
-    
-def get_result(scanner, json_result, str_result):
-    json_result.update(scanner.json_result)
-    str_result += scanner.str_result
-    return str_result
+    os_type = checkOs.os_type
+    sudo = checkOs.sudo
+
+    scanSystem = ScanSystem(ssh_client, os_type, sudo)
+    scanNetwork = ScanNetwork(ssh_client, os_type, sudo)
+
+    json_result.update(scanSystem.json_result)
+    json_result.update(scanNetwork.json_result)
+
+    str_result += scanSystem.str_result
+    str_result += scanNetwork.str_result
+
+    file_write(json.dumps(json_result, indent=4), 'raw.json')
+    file_write(str_result, 'raw.txt')
 
 if __name__ == "__main__":
     ssh_client = ModuleSsh()
