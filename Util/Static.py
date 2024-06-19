@@ -3,7 +3,12 @@
 # USERNAME = 'root'
 # PASSWORD = 'root'
 
-HOST = '172.30.1.34'
+# HOST = '172.30.1.34'
+# PORT = 22
+# USERNAME = 'kali'
+# PASSWORD = 'kali'
+
+HOST = '127.0.0.1'
 PORT = 22
-USERNAME = 'kali'
-PASSWORD = 'kali'
+USERNAME = 'testuser'
+PASSWORD = 'test'

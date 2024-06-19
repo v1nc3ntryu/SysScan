@@ -30,8 +30,14 @@ class ModuleSsh:
         try:
             stdin, stdout, stderr = self.client.exec_command(command)
             time.sleep(0.5)  # 명령 실행 대기
-            output = stdout.read().decode()
-            error = stderr.read().decode()
+            try:
+                output = stdout.read().decode()
+                error = stderr.read().decode()
+            except UnicodeDecodeError as e:
+                # print(f"[-] UnicodeDecodeError: {e}")
+                # print('may be windows')
+                output = stdout.read().decode('cp1252')
+                error = stderr.read().decode('cp1252')
             if error:
                 return error
             else:
