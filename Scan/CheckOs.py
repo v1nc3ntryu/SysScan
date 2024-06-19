@@ -15,7 +15,6 @@ class CheckOs:
         print(f'[*] {method_name}...')
         command = 'ls -al'
         raw_result = self.ssh_client.execute_command(command)
-        print(raw_result)
         if raw_result.startswith('total') == False:
             self.os_type = 'W'
         print(f'os type is :{self.os_type}')

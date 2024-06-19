@@ -54,6 +54,7 @@ class ScanSystem:
                     continue
                 result.update({parts[1] : 'on' if parts[0] == '+' else 'off'})
 
+        # 권한 이슈
         elif self.os_type == 'W':
             command = ''
             raw_result = ''
@@ -79,7 +80,7 @@ class ScanSystem:
 
         elif self.os_type == 'W':
             command = 'set'
-            raw_result = self.ssh_client.execute_command(command)
+            raw_result = self.ssh_client.execute_command(command).replace('\r', '')
             for line in raw_result.split('\n'):
                 temp_result = line.strip().split('=')
                 if len(temp_result) < 2:
@@ -95,17 +96,19 @@ class ScanSystem:
         print(f'[*] {method_name}...')
         result = {}
         
-        
         if self.os_type == 'L':
             command = 'crontab -l'
             raw_result = self.ssh_client.execute_command(command)
-            if 'not found' not in raw_result:
+            if 'not found' in raw_result or 'no crontab for' in raw_result:
+                result['no crontab'] = ''
+            else:
                 for line in raw_result.split('\n'):
                     line = line.lstrip()
                     if line.startswith('#') or line == '':
                         continue
                     else:
                         parts = line.split(' ')
+                        print(parts)
                         cron_info = {
                             'minute' : parts[0],
                             'hour' : parts[1],
@@ -114,13 +117,10 @@ class ScanSystem:
                             'day of week' : parts[4],
                         }
                         result[parts[5]] = cron_info
-            else:
-                result['no crontab'] = ''
 
         elif self.os_type == 'W':
-            # 결과가 안보임..
-            command = 'schtasks /query /fo LIST /v'
-            raw_result = self.ssh_client.execute_command(command)
+            command = 'chcp 437 && schtasks /query /fo LIST /v'
+            raw_result = self.ssh_client.execute_command(command).replace('\r', '')
             result = 'check txt result'
                 
         gather_result_json(self.json_result, method_name, result)

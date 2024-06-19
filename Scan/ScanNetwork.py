@@ -28,7 +28,6 @@ class ScanNetwork:
             for line in raw_result.split('\n'):
                 if line.startswith(' ') or line == '':
                     line = line.lstrip()
-                    # print(line.split(' '))
                     if 'inet ' in line:
                         result[eth]['inet'] = line.split(' ')[1]
                         if 'netmask ' in line:
@@ -39,14 +38,34 @@ class ScanNetwork:
                     temp = {
                         'inet' : '',
                         'inet6' : '',
-                        'netmask' : '',
+                        'subnetmask' : '',
                     }
                     eth = line.split(':')[0]
                     result.update({eth : temp})
 
         elif self.os_type == 'W':
-            command = 'ipconfig'
-            raw_result = self.ssh_client.execute_command(command)
+            command = 'chcp 437 && ipconfig'
+            raw_result = self.ssh_client.execute_command(command).replace('\r', '')
+            eth = ''
+            for line in raw_result.split('\n'):
+                if line.startswith(' ') or line == '':
+                    line = line.lstrip()
+                    if 'IPv4' in line:
+                        result[eth]['inet'] = line.split(' ')[-1]
+                    elif 'IPv6' in line:
+                        result[eth]['inet6'] = line.split(' ')[-1]
+                    elif 'Subnet Mask' in line:
+                        result[eth]['netmask'] = line.split(' ')[-1]
+                elif 'Active code page' in line or 'Windows IP Configuration' in line:
+                    continue
+                else:
+                    temp = {
+                        'inet' : '',
+                        'inet6' : '',
+                        'subnetmask' : '',
+                    }
+                    eth = line.split(':')[0]
+                    result.update({eth : temp})
                 
         gather_result_json(self.json_result, method_name, result)
         self.str_result = gather_result(self.str_result, self.class_name, method_name, command, raw_result)
@@ -86,8 +105,30 @@ class ScanNetwork:
                 
 
         elif self.os_type == 'W':
-            command = 'ipconfig'
-            raw_result = self.ssh_client.execute_command(command)
+            command = 'chcp 437 && netstat -an'
+            raw_result = self.ssh_client.execute_command(command).replace('\r', '')
+            check = False
+            for line in raw_result.split('\n'):
+                if check == False:
+                    if 'Proto' in line:
+                        check = True
+                else:
+                    temp = []
+                    for temp_line in line.split(' '):
+                        if temp_line != '':
+                            temp.append(temp_line)
+                    if len(temp) < 1:
+                        continue
+                    temp3 = {
+                        'protocol' : temp[0],
+                        'state' : '' if len(temp) < 4 else temp[3],
+                        'port' : temp[1].split(':')[-1],
+                        'local_address' : temp[1],
+                        'peer_address' : temp[2],
+                    }
+                    result.append(temp3)
+            if len(result) < 1:
+                result.append('no module to check')
                 
         gather_result_json(self.json_result, method_name, result)
         self.str_result = gather_result(self.str_result, self.class_name, method_name, command, raw_result)
@@ -97,7 +138,7 @@ class ScanNetwork:
         method_name = inspect.currentframe().f_code.co_name
         print(f'[*] {method_name}...')
         raw_result = ''
-        result = {}
+        result = []
 
         if self.os_type == 'L':
             command = 'route -n'
@@ -114,34 +155,38 @@ class ScanNetwork:
                             temp.append(temp_line)
                     if len(temp) < 1:
                         continue
-                    iface = temp[7]
                     temp = {
+                        'iface' : temp[7],
                         'destination': temp[0],
                         'gateway': temp[1],
                         'genmask': temp[2],
                     }
-                    result[iface] = temp
+                    result.append(temp)
 
         elif self.os_type == 'W':
-            command = 'ipconfig'
-            raw_result = self.ssh_client.execute_command(command)
-                
-        gather_result_json(self.json_result, method_name, result)
-        self.str_result = gather_result(self.str_result, self.class_name, method_name, command, raw_result)
-
-
-    def info_ssh(self):
-        method_name = inspect.currentframe().f_code.co_name
-        print(f'[*] {method_name}...')
-        command = 'printenv'
-        raw_result = self.ssh_client.execute_command(command)
-        lines = raw_result.split('\n')
-        result = []
-        for line in lines:
-            temp_result = line.strip().split('=')
-            if len(temp_result) < 2:
-                continue
-            result.append({temp_result[0] : temp_result[1]})
+            command = 'chcp 437 && netstat -r'
+            raw_result = self.ssh_client.execute_command(command).replace('\r', '')
+            check = False
+            for line in raw_result.split('\n'):
+                if check == False:
+                    if 'Network Destination' in line:
+                        check = True
+                elif check == True and '===' in line:
+                    break
+                else:
+                    temp = []
+                    for temp_line in line.split(' '):
+                        if temp_line != '':
+                            temp.append(temp_line)
+                    if len(temp) < 1:
+                        continue
+                    temp = {
+                        'iface' : temp[3],
+                        'destination': temp[0],
+                        'gateway': temp[2],
+                        'genmask': temp[1],
+                    }
+                    result.append(temp)
                 
         gather_result_json(self.json_result, method_name, result)
         self.str_result = gather_result(self.str_result, self.class_name, method_name, command, raw_result)

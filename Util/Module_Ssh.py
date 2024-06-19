@@ -9,9 +9,9 @@ class ModuleSsh:
         self.port = PORT
         self.username = USERNAME
         self.password = PASSWORD
-        self.sudo_password = PASSWORD  # sudo 비밀번호를 추가
         self.client = paramiko.SSHClient()
         self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        self.decode_set = 'default'
 
     def connect(self):
         try:
@@ -26,18 +26,20 @@ class ModuleSsh:
         if not self.client:
             print("\n[-] SSH client is not connected.")
             return None
-        
         try:
             stdin, stdout, stderr = self.client.exec_command(command)
             time.sleep(0.5)  # 명령 실행 대기
-            try:
-                output = stdout.read().decode()
-                error = stderr.read().decode()
-            except UnicodeDecodeError as e:
-                # print(f"[-] UnicodeDecodeError: {e}")
-                # print('may be windows')
-                output = stdout.read().decode('cp1252')
-                error = stderr.read().decode('cp1252')
+            if self.decode_set == 'default':
+                try:
+                    output = stdout.read().decode()
+                    error = stderr.read().decode()
+                except UnicodeDecodeError as e:
+                    output = stdout.read().decode('cp949')
+                    error = stderr.read().decode('cp949')
+                    self.decode_set = 'cp949'
+            else:
+                output = stdout.read().decode('cp949')
+                error = stderr.read().decode('cp949')
             if error:
                 return error
             else:

@@ -12,12 +12,12 @@ def gather_result(str_result, class_name, method_name, command, raw_result):
     str_result += f'\n{raw_result}'
     return str_result
 
-def gather_result_multi(str_result, class_name, method_name, raw_result):
-    str_result += f'\n--------------------------------------'
-    str_result += f'\nClass Name : {class_name}'
-    str_result += f'\nMethod Name : {method_name}'
-    str_result += f'{raw_result}'
-    return str_result
+# def gather_result_multi(str_result, class_name, method_name, raw_result):
+#     str_result += f'\n--------------------------------------'
+#     str_result += f'\nClass Name : {class_name}'
+#     str_result += f'\nMethod Name : {method_name}'
+#     str_result += f'{raw_result}'
+#     return str_result
 
 def file_write(raw_file, file_name):
     current_dir = os.path.join(os.getcwd(), 'Result')
@@ -25,7 +25,7 @@ def file_write(raw_file, file_name):
     if not os.path.exists(current_dir):
         os.makedirs(current_dir)  # 'Result' 디렉토리가 없으면 생성
         
-    with open(current_dir + f'/{file_name}', 'w') as file:
+    with open(current_dir + f'/{file_name}', 'w', encoding='utf-8') as file:
         file.write(raw_file)
 
 def parse_tree_linux(tree_text):
