@@ -1,3 +1,6 @@
+'''
+네트워크 정보 수집 모듈
+'''
 from Util.Common import *
 
 class ScanNetwork:

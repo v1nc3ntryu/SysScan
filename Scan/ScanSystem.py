@@ -1,3 +1,6 @@
+'''
+시스템 정보 수집 모듈
+'''
 from Util.Common import *
 
 class ScanSystem:

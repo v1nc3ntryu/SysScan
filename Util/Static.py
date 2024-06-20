@@ -1,3 +1,6 @@
+'''
+SSH 연결 정보 정의. 하단에 입력한 정보를 통해 서버 접근
+'''
 HOST = 'localhost'
 PORT = 2222
 USERNAME = 'root'

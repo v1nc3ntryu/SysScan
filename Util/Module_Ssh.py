@@ -1,7 +1,9 @@
+'''
+SSH 연결 및 명령어 송수신 모듈
+'''
 import paramiko
 import time
 from Util.Static import *
-# from Static import *
 
 class ModuleSsh:
     def __init__(self):
